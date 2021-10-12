@@ -26,8 +26,12 @@ def compute_correlation(user_item_matrix_data, corr_methods):
 
     user_user_correlation_data = pd.crosstab(index=np.array(one_user_list), \
                                             columns=np.array(two_user_list),\
-                                            values=user_user_correlation)
+                                            values=user_user_correlation,
+                                            aggfunc=np.mean)
     return user_user_correlation_data
+
+def find_most_similar_user(user_id, num_user):
+    return
 
 def predict():
     return
