@@ -28,3 +28,6 @@ def compute_correlation(user_item_matrix_data, corr_methods):
                                             columns=np.array(two_user_list),\
                                             values=user_user_correlation)
     return user_user_correlation_data
+
+def predict():
+    return
