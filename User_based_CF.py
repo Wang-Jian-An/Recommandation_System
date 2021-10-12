@@ -30,12 +30,11 @@ class User_based_CF():
                 two_user_list.append(two_user)
                 user_user_correlation.append(stats.pearsonr(impute_zero_user_item_matrix_data.loc[one_user, :], impute_zero_user_item_matrix_data.loc[two_user, :])[0])
 
-        user_user_correlation_data = pd.crosstab(index=np.array(one_user_list), \
+        self.user_user_correlation_data = pd.crosstab(index=np.array(one_user_list), \
                                                 columns=np.array(two_user_list),\
                                                 values=user_user_correlation,
                                                 aggfunc=np.mean)
         return self.user_user_correlation_data
-
 
     def predict_without_time(self, user_id, item_id, num_user):
         # 1. 先找到相似的人
