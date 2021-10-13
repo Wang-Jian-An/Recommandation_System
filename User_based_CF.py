@@ -38,7 +38,7 @@ class User_based_CF():
 
     def predict_without_time(self, user_id, item_id, num_user):
         # 1. 先找到相似的人
-        similar_user_and_correlation = self.user_user_correlation_data[user_id].sort_values()[-num_user:]
+        similar_user_and_correlation = self.user_user_correlation_data[user_id].sort_values()[-num_user-1:-1]
         similar_user = dict()
         for one_index in list(similar_user_and_correlation.index):
             similar_user[one_index] = similar_user_and_correlation[one_index]

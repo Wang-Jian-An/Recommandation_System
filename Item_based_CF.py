@@ -20,12 +20,12 @@ class Item_based_CF():
         user_user_correlation = list()
 
         if corr_methods == "pearson":
-            for one_item, two_item in itertools.product(impute_zero_user_item_matrix_data.column, impute_zero_user_item_matrix_data.column):
+            for one_item, two_item in itertools.product(impute_zero_user_item_matrix_data.columns, impute_zero_user_item_matrix_data.columns):
                 one_user_list.append(one_item)
                 two_user_list.append(two_item)
                 user_user_correlation.append(stats.pearsonr(impute_zero_user_item_matrix_data.loc[:, one_item], impute_zero_user_item_matrix_data.loc[:, two_item])[0])
         elif corr_methods == "cosine":
-            for one_item, two_item in itertools.product(impute_zero_user_item_matrix_data.index, impute_zero_user_item_matrix_data.index):
+            for one_item, two_item in itertools.product(impute_zero_user_item_matrix_data.columns, impute_zero_user_item_matrix_data.columns):
                 one_user_list.append(one_item)
                 two_user_list.append(two_item)
                 user_user_correlation.append(stats.pearsonr(impute_zero_user_item_matrix_data.loc[:, one_item], impute_zero_user_item_matrix_data.loc[:, two_item])[0])
@@ -37,17 +37,18 @@ class Item_based_CF():
         return self.item_item_correlation_data
 
     def predict_without_time(self, item_id, user_id, num_item):
-        # 1. 先找到相似的人
+        # 1. 先找到相似的物品
         similar_item_and_correlation = self.item_item_correlation_data[item_id].sort_values()[-num_item:]
         similar_item = dict()
         for one_index in list(similar_item_and_correlation.index):
             similar_item[one_index] = similar_item_and_correlation[one_index]
 
-        # 2. 找到某個相似的人中針對某個item的rating與時間
+        # 2. 找到某個相似的物品中針對某個item的rating與時間
         predict_user = self.traindata[list(map(lambda x: True if x in list(similar_item.keys()) else False, self.traindata["Item_id"]))][self.traindata["User_id"] == user_id]
+        print(predict_user)
 
         # 3. 計算分母與分子
-        rating_similar = list(map(lambda x: predict_user.iloc[x, 2] * similar_item[predict_user.iloc[x, 0]], [i for i in range(predict_user.shape[0])]))
+        rating_similar = list(map(lambda x: predict_user.iloc[x, 2] * similar_item[predict_user.iloc[x, 1]], [i for i in range(predict_user.shape[0])]))
         similar = list(map(lambda x: similar_item[predict_user.iloc[x, 0]], [i for i in range(predict_user.shape[0])]))
 
         # 4. 把兩者相除
