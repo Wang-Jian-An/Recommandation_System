@@ -45,11 +45,10 @@ class Item_based_CF():
 
         # 2. 找到某個相似的物品中針對某個item的rating與時間
         predict_user = self.traindata[list(map(lambda x: True if x in list(similar_item.keys()) else False, self.traindata["Item_id"]))][self.traindata["User_id"] == user_id]
-        print(predict_user)
 
         # 3. 計算分母與分子
         rating_similar = list(map(lambda x: predict_user.iloc[x, 2] * similar_item[predict_user.iloc[x, 1]], [i for i in range(predict_user.shape[0])]))
-        similar = list(map(lambda x: similar_item[predict_user.iloc[x, 0]], [i for i in range(predict_user.shape[0])]))
+        similar = list(map(lambda x: similar_item[predict_user.iloc[x, 1]], [i for i in range(predict_user.shape[0])]))
 
         # 4. 把兩者相除
         pred_rating = np.sum(rating_similar) / np.sum(similar)
