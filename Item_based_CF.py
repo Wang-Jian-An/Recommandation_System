@@ -28,7 +28,7 @@ class Item_based_CF():
             for one_item, two_item in itertools.product(impute_zero_user_item_matrix_data.columns, impute_zero_user_item_matrix_data.columns):
                 one_user_list.append(one_item)
                 two_user_list.append(two_item)
-                user_user_correlation.append(stats.pearsonr(impute_zero_user_item_matrix_data.loc[:, one_item], impute_zero_user_item_matrix_data.loc[:, two_item])[0])
+                user_user_correlation.append(stats.distance.cosine(impute_zero_user_item_matrix_data.loc[:, one_item], impute_zero_user_item_matrix_data.loc[:, two_item])[0])
 
         self.item_item_correlation_data = pd.crosstab(index=np.array(one_user_list), \
                                                 columns=np.array(two_user_list),\
