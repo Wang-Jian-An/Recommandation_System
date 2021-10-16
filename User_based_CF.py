@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from tqdm.contrib import itertools
 
-from scipy import stats
+from scipy import stats, spatial
 
 class User_based_CF():
     def __init__(self, traindata, user_item_matrix_data):
@@ -28,7 +28,7 @@ class User_based_CF():
             for one_user, two_user in itertools.product(impute_zero_user_item_matrix_data.index, impute_zero_user_item_matrix_data.index):
                 one_user_list.append(one_user)
                 two_user_list.append(two_user)
-                user_user_correlation.append(stats.distance.cosine(impute_zero_user_item_matrix_data.loc[one_user, :], impute_zero_user_item_matrix_data.loc[two_user, :])[0])
+                user_user_correlation.append(spatial.distance.cosine(impute_zero_user_item_matrix_data.loc[one_user, :], impute_zero_user_item_matrix_data.loc[two_user, :])[0])
 
         self.user_user_correlation_data = pd.crosstab(index=np.array(one_user_list), \
                                                 columns=np.array(two_user_list),\
