@@ -16,6 +16,40 @@ from Item_based_CF import *
 from sklearn.metrics import mean_squared_error
 import math
 
+# Matrix Factorization Model
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        return
+
+    def forward(self):
+        return
+
+class Loss_function(nn.Module):
+    def __init__(self):
+        super(Loss_function, self).__init__()
+        return
+
+    def forward(self):
+        return
+
+class Training():
+    def __init__(self):
+        return
+
+    def fit():
+        return
+    
+    def predict():
+        return
+
+    def evaluate():
+        return
+
+
+
+
+
 class Matrix_Factorization_with_bias():
     def __init__(self, num_user_id, num_item_id, num_features, all_true_user_item_matrix):
         self.p_matrix = np.random.random(size=(num_user_id, num_features)).astype("float")
