@@ -10,27 +10,37 @@ from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 import itertools
 
-from User_based_CF import *
-from Item_based_CF import *
+import torch
+import torch.nn as nn
 
 from sklearn.metrics import mean_squared_error
 import math
 
 # Matrix Factorization Model
 class Model(nn.Module):
-    def __init__(self):
+    def __init__(self, num_user_id, num_item_id, num_features, all_true_user_item_matrix):
         super(Model, self).__init__()
+        self.p_matrix = torch.rand(num_user_id, num_features)
+        self.q_matrix = torch.rand(num_features, num_item_id)
+
+        # 計算global mean
+        self.global_mean = all_true_user_item_matrix.values.reshape(-1, 1)[torch.where(all_true_user_item_matrix.values.reshape(-1, 1) > 0)[0]].mean()
+
+        # 計算bias of user and bias of item
+        self.bu = list(map(lambda x: np.mean( all_true_user_item_matrix.loc[x, :].values[np.where(all_true_user_item_matrix.loc[x, :].values > 0)[0]] - self.global_mean), list(all_true_user_item_matrix.index)))
+        self.bi = list(map(lambda x: np.mean( all_true_user_item_matrix.loc[:, x].values[np.where(all_true_user_item_matrix.loc[:, x].values > 0)[0]] - self.global_mean), list(all_true_user_item_matrix.columns)))
         return
 
     def forward(self):
-        return
+        X = self.q_matrix(self.p_matrix)
+        return X
 
 class Loss_function(nn.Module):
     def __init__(self):
         super(Loss_function, self).__init__()
         return
 
-    def forward(self):
+    def forward(self, true_user_item_matrix, pred_user_item_matrix, p_matrix, q_matrix):
         return
 
 class Training():
