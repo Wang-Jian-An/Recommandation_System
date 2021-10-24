@@ -15,16 +15,22 @@ import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
 
 # 建構模型→Movielens
-class fm_model(nn.Module):
+class fnn_model(nn.Module):
     def __init__(self, num_user_age, num_user_occupation, num_movie_genre, num_decoder, num_features):
-        super(fm_model, self).__init__()
+        super(fnn_model, self).__init__()
         self.user_age = nn.Linear(num_user_age, num_features)
         self.user_occupation = nn.Linear(num_user_occupation, num_features)
         self.movie_genre = nn.Linear(num_movie_genre, num_features)
         self.user_age_weight_linear = nn.Linear(num_user_age, 1)
         self.user_occupation_weight_linear = nn.Linear(num_user_occupation, 1)
         self.movie_genre_weight_linear = nn.Linear(num_movie_genre, 1)
-        self.decoder = nn.Linear(num_decoder, 1)
+        self.decoder = nn.Sequential(
+            nn.Linear(num_decoder, int(round(num_decoder/2, 0))),
+            nn.Tanh(),
+            nn.Linear(int(round(num_decoder/2, 0)), int(round(num_decoder/4, 0))),
+            nn.Tanh(),
+            nn.Linear(int(round(num_decoder/4, 0)), 1)
+        )
         return
 
     def forward(self, user_age_feature, user_occupation_feature, movie_genre_feature):
