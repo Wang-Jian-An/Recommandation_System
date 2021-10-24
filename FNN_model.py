@@ -15,9 +15,9 @@ import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
 
 # 建構模型→Movielens
-class opnn_model(nn.Module):
+class fnn_model(nn.Module):
     def __init__(self, num_user_age, num_user_occupation, num_movie_genre, num_decoder, num_features):
-        super(opnn_model, self).__init__()
+        super(fnn_model, self).__init__()
         self.user_age = nn.Linear(num_user_age, num_features)
         self.user_occupation = nn.Linear(num_user_occupation, num_features)
         self.movie_genre = nn.Linear(num_movie_genre, num_features)
@@ -33,7 +33,7 @@ class opnn_model(nn.Module):
         )
         return
 
-    def forward(self, batch_size, user_age_feature, user_occupation_feature, movie_genre_feature):
+    def forward(self, user_age_feature, user_occupation_feature, movie_genre_feature):
         # Embedding Learning
         self.user_age_embedding = self.user_age(user_age_feature) # shape=(batch_size, num_features)
         self.user_occupation_embedding = self.user_occupation(user_occupation_feature) # shape=(batch_size, num_features)
@@ -42,24 +42,8 @@ class opnn_model(nn.Module):
         self.user_occupation_weight = self.user_occupation_weight_linear(user_occupation_feature) # shape = (batch_size, 1)
         self.movie_genre_weight = self.movie_genre_weight_linear(movie_genre_feature) # shape = (batch_size, 1)
 
-        # Outer product
-        # 1. 增加某一維度 (batch_size, num_features, 1) * (batch_size, 1, num_features)
-        # 2. 做Inner product (batch_size, num_features, num_features)
-        # 3. Flatten
-        self.user_age_user_occupation =\
-            torch.tensordot(torch.squeeze(self.user_age_embedding, 1), torch.squeeze(self.user_occupation_embedding, 2), dims=([1], [2])) # shape=(batch_size, num_features)
-        self.user_age_user_occupation = torch.reshape(self.user_age_user_occupation, shape=(batch_size, -1))        
-        
-        self.user_age_movie_genre =\
-            torch.tensordot(torch.squeeze(self.user_age_embedding, 1), torch.squeeze(self.movie_genre_embedding, 2), dims=([1], [2])) # shape=(batch_size, num_features)
-        self.user_age_movie_genre = torch.reshape(self.user_age_movie_genre, shape=(batch_size, -1))
-        
-        self.user_occupation_movie_genre =\
-            torch.tensordot(torch.squeeze(self.user_occupation_embedding, 1), torch.squeeze(self.movie_genre_embedding, 2), dims=([1], [2])) # shape=(batch_size, num_features)
-        self.user_occupation_movie_genre = torch.reshape(self.user_occupation_movie_genre, shape=(batch_size, -1))
-
         # Concatenate
-        self.all = torch.cat((self.user_age_user_occupation, self.user_age_movie_genre, self.user_occupation_movie_genre,\
+        self.all = torch.cat((self.user_age_embedding, self.user_occupation_embedding, self.movie_genre_embedding,\
                               self.user_age_weight, self.user_occupation_weight, self.movie_genre_weight), dim=-1) 
 
         # Decoder
