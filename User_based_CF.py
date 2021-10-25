@@ -36,7 +36,7 @@ class User_based_CF():
                                                 aggfunc=np.mean)
         return self.user_user_correlation_data
 
-    def predict_without_time(self, user_id, item_id, num_user):
+    def predict_without_time(self, user_id, item_id, user_column_name, item_column_name, num_user):
         # 1. 先找到相似的人
         similar_user_and_correlation = self.user_user_correlation_data[user_id].sort_values()[-num_user-1:-1]
         similar_user = dict()
@@ -44,7 +44,7 @@ class User_based_CF():
             similar_user[one_index] = similar_user_and_correlation[one_index]
 
         # 2. 找到某個相似的人中針對某個item的rating與時間
-        predict_user = self.traindata[list(map(lambda x: True if x in list(similar_user.keys()) else False, self.traindata["User_id"]))][self.traindata["Item_id"] == item_id]
+        predict_user = self.traindata[list(map(lambda x: True if x in list(similar_user.keys()) else False, self.traindata[user_column_name]))][self.traindata[item_column_name] == item_id]
 
         # 3. 計算分母與分子
         rating_similar = list(map(lambda x: predict_user.iloc[x, 2] * similar_user[predict_user.iloc[x, 0]], [i for i in range(predict_user.shape[0])]))
