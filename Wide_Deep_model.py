@@ -18,8 +18,9 @@ from torch.utils.data import TensorDataset, DataLoader
 class wide_deep_model(nn.Module):
     def __init__(self, num_user_age, num_user_occupation, num_movie_genre, num_features, methods):
         super(wide_deep_model, self).__init__()
-        num_decoder = num_user_age + num_user_occupation + num_movie_genre + int(round(num_deep_decoder/4, 0))
+    
         num_deep_decoder = 3 * num_features
+        num_decoder = num_user_age + num_user_occupation + num_movie_genre + int(round(num_deep_decoder/4, 0))
         self.methods = methods
         self.user_age = nn.Linear(num_user_age, num_features)
         self.user_occupation = nn.Linear(num_user_occupation, num_features)
