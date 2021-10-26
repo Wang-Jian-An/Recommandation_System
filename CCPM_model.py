@@ -15,9 +15,10 @@ import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
 
 # 建構模型→Movielens
-class ipnn_model(nn.Module):
-    def __init__(self, num_user_age, num_user_occupation, num_movie_genre, num_decoder, num_features):
-        super(ipnn_model, self).__init__()
+class ccpm_model(nn.Module):
+    def __init__(self, num_user_age, num_user_occupation, num_movie_genre, num_features, methods):
+        super(ccpm_model, self).__init__()
+        num_decoder = 3 * num_features
         self.user_age = nn.Linear(num_user_age, num_features)
         self.user_occupation = nn.Linear(num_user_occupation, num_features)
         self.movie_genre = nn.Linear(num_movie_genre, num_features)

@@ -16,8 +16,11 @@ from torch.utils.data import TensorDataset, DataLoader
 
 # 建構模型→Movielens
 class wide_deep_model(nn.Module):
-    def __init__(self, num_user_age, num_user_occupation, num_movie_genre, num_decoder, num_features):
+    def __init__(self, num_user_age, num_user_occupation, num_movie_genre, num_features, methods):
         super(wide_deep_model, self).__init__()
+        num_decoder = num_user_age + num_user_occupation + num_movie_genre + int(round(num_deep_decoder/4, 0))
+        num_deep_decoder = 3 * num_features
+        self.methods = methods
         self.user_age = nn.Linear(num_user_age, num_features)
         self.user_occupation = nn.Linear(num_user_occupation, num_features)
         self.movie_genre = nn.Linear(num_movie_genre, num_features)
@@ -25,12 +28,12 @@ class wide_deep_model(nn.Module):
         self.user_occupation_weight_linear = nn.Linear(num_user_occupation, 1)
         self.movie_genre_weight_linear = nn.Linear(num_movie_genre, 1)
         self.deep_decoder = nn.Sequential(
-            nn.Linear(num_decoder, int(round(num_decoder/2, 0))),
+            nn.Linear(num_deep_decoder, int(round(num_deep_decoder/2, 0))),
             nn.Tanh(),
-            nn.Linear(int(round(num_decoder/2, 0)), int(round(num_decoder/4, 0))),
+            nn.Linear(int(round(num_deep_decoder/2, 0)), int(round(num_deep_decoder/4, 0))),
             nn.Tanh(),
-            nn.Linear(int(round(num_decoder/4, 0)), 1)
         )
+        self.decoder = nn.Linear(num_decoder, 1)
         return
 
     def forward(self, user_age_feature, user_occupation_feature, movie_genre_feature):
@@ -46,16 +49,24 @@ class wide_deep_model(nn.Module):
         self.user_occupation_movie_genre = self.user_occupation_embedding * self.movie_genre_embedding # shape=(batch_size, num_features)
 
         # Concatenate
-        self.all = torch.cat((self.user_age_user_occupation, self.user_age_movie_genre, self.user_occupation_movie_genre), dim=-1) 
+        self.deep_part_all = torch.cat((self.user_age_user_occupation, self.user_age_movie_genre, self.user_occupation_movie_genre), dim=-1) 
 
         # Deep_Decoder
-        
-
+        self.deep_part_all = self.deep_decoder(self.deep_part_all)
 
         ## Wide part
-        
+        # Concatenate
+        self.wide_part_all = torch.cat([user_age_feature, user_occupation_feature, movie_genre_feature], dim=1)
+
+        ## All
+        # Concatenate
+        self.all = torch.cat([self.wide_part_all, self.deep_part_all], dim=1)
 
         # Decoder
         X = self.decoder(self.all)
-        return X
+
+        if self.methods == "regression":
+            return X
+        else:
+            return nn.Sigmoid()(X)
 
