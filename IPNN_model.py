@@ -16,8 +16,10 @@ from torch.utils.data import TensorDataset, DataLoader
 
 # 建構模型→Movielens
 class ipnn_model(nn.Module):
-    def __init__(self, num_user_age, num_user_occupation, num_movie_genre, num_decoder, num_features):
+    def __init__(self, num_user_age, num_user_occupation, num_movie_genre, num_features, methods):
         super(ipnn_model, self).__init__()
+        num_decoder = num_features*3+3
+        self.methods = methods
         self.user_age = nn.Linear(num_user_age, num_features)
         self.user_occupation = nn.Linear(num_user_occupation, num_features)
         self.movie_genre = nn.Linear(num_movie_genre, num_features)
@@ -53,4 +55,8 @@ class ipnn_model(nn.Module):
 
         # Decoder
         X = self.decoder(self.all)
-        return X
+
+        if self.methods == "regression":
+            return X
+        else:
+            return nn.Sigmoid()(X)

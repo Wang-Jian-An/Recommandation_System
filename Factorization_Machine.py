@@ -16,7 +16,7 @@ from torch.utils.data import TensorDataset, DataLoader
 
 # 建構模型→Movielens
 class fm_model(nn.Module):
-    def __init__(self, num_user_age, num_user_occupation, num_movie_genre, num_decoder, num_features):
+    def __init__(self, num_user_age, num_user_occupation, num_movie_genre, num_features, methods):
         super(fm_model, self).__init__()
         self.user_age = nn.Linear(num_user_age, num_features)
         self.user_occupation = nn.Linear(num_user_occupation, num_features)
@@ -24,7 +24,8 @@ class fm_model(nn.Module):
         self.user_age_weight_linear = nn.Linear(num_user_age, 1)
         self.user_occupation_weight_linear = nn.Linear(num_user_occupation, 1)
         self.movie_genre_weight_linear = nn.Linear(num_movie_genre, 1)
-        self.decoder = nn.Linear(num_decoder, 1)
+        self.decoder = nn.Linear(num_features*3+3, 1)
+        self.methods = methods
         return
 
     def forward(self, user_age_feature, user_occupation_feature, movie_genre_feature):
@@ -47,4 +48,10 @@ class fm_model(nn.Module):
 
         # Decoder
         X = self.decoder(self.all)
-        return X
+
+        # identify regression or classification task
+        if self.methods == "regression":
+            return X
+        else:
+            return nn.Sigmoid()(X)
+        
