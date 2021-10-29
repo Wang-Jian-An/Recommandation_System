@@ -147,8 +147,9 @@ class fnn_model(nn.Module):
 
 # Generalize Matrix Factorization in NeuCF
 class gmf_neucf_model(nn.Module):
-    def __init__(self, num_user, num_item, num_features):
+    def __init__(self, num_user, num_item, num_features, methods):
         super(gmf_neucf_model, self).__init__()
+        self.methods = methods
         self.user_embedding_learning = nn.Linear(num_user, num_features)
         self.item_embedding_learning = nn.Linear(num_item, num_features)
         self.decoder = nn.Linear(num_features, 1)
@@ -165,8 +166,13 @@ class gmf_neucf_model(nn.Module):
         # print(self.user_item_inner_product)
 
         # Decoder
-        yhat = self.decoder(self.user_item_inner_product)
-        return yhat
+        X = self.decoder(self.user_item_inner_product)
+
+        # identify regression or classification task
+        if self.methods == "regression":
+            return X
+        else:
+            return nn.Sigmoid()(X)
 
 
 # IPNN model
@@ -218,8 +224,9 @@ class ipnn_model(nn.Module):
 
 # MLP in NeuCF
 class mlp_neucf_model(nn.Module):
-    def __init__(self, num_user, num_item, num_features):
+    def __init__(self, num_user, num_item, num_features, methods):
         super(mlp_neucf_model, self).__init__()
+        self.methods = methods
         self.user_embedding_learning = nn.Linear(num_user, num_features)
         self.item_embedding_learning = nn.Linear(num_item, num_features)
         self.decoder = nn.Sequential(
@@ -241,7 +248,12 @@ class mlp_neucf_model(nn.Module):
 
         # Decoder
         yhat = self.decoder(self.user_item)
-        return yhat
+
+        # identify regression or classification task
+        if self.methods == "regression":
+            return X
+        else:
+            return nn.Sigmoid()(X)
 
 # NeuMF
 class neumf(nn.Module):
