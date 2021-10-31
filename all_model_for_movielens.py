@@ -247,7 +247,7 @@ class mlp_neucf_model(nn.Module):
         self.user_item = torch.cat([self.user_embedding, self.item_embedding], dim=1)
 
         # Decoder
-        yhat = self.decoder(self.user_item)
+        X = self.decoder(self.user_item)
 
         # identify regression or classification task
         if self.methods == "regression":

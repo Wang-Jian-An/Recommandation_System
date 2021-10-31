@@ -77,7 +77,7 @@ class fm_model(nn.Module):
         self.book_author_weight_linear = nn.Linear(num_book_author, 1)
         self.book_publisher_weight_linear = nn.Linear(num_book_publisher, 1)
         self.book_year_weight_linear = nn.Linear(num_book_year, 1)
-        self.decoder = nn.Linear(num_features*3+3, 1)
+        self.decoder = nn.Linear(num_features*6+4, 1)
         self.methods = methods
         return
 
@@ -93,16 +93,17 @@ class fm_model(nn.Module):
         self.book_year_weight = self.book_year_weight_linear(book_year_feature) # shape = (batch_size, 1)
 
         # Inner product
-        self.user_group_book_author = self.user_group * self.book_author
-        self.user_group_book_publisher = self.user_group * self.book_publisher
-        self.user_group_book_year = self.user_group * self.book_year
-        self.book_author_book_publisher = self.book_author * self.book_publisher
-        self.book_author_book_year = self.book_author * self.book_year
-        self.book_publisher_book_year = self.book_publisher * self.book_year
+        self.user_group_book_author = self.user_group_embedding * self.book_author_embedding
+        self.user_group_book_publisher = self.user_group_embedding * self.book_publisher_embedding
+        self.user_group_book_year = self.user_group_embedding * self.book_year_embedding
+        self.book_author_book_publisher = self.book_author_embedding * self.book_publisher_embedding
+        self.book_author_book_year = self.book_author_embedding * self.book_year_embedding
+        self.book_publisher_book_year = self.book_publisher_embedding * self.book_year_embedding
 
         # Concatenate
         self.all = torch.cat((self.user_group_book_author, self.user_group_book_publisher, self.user_group_book_year,\
-                              self.book_author_book_publisher, self.book_author_book_year, self.book_publisher_book_year), dim=-1) 
+                              self.book_author_book_publisher, self.book_author_book_year, self.book_publisher_book_year,\
+                              self.user_group_weight, self.book_author_weight, self.book_publisher_weight, self.book_year_weight), dim=-1) 
 
         # Decoder
         X = self.decoder(self.all)
@@ -117,7 +118,7 @@ class fm_model(nn.Module):
 class fnn_model(nn.Module):
     def __init__(self, num_user_group, num_book_author, num_book_publisher, num_book_year, num_features, methods):
         super(fnn_model, self).__init__()
-        num_decoder = num_features*3+3
+        num_decoder = num_features*4+4
         self.methods = methods
         self.user_group = nn.Linear(num_user_group, num_features)
         self.book_author = nn.Linear(num_book_author, num_features)
@@ -148,8 +149,8 @@ class fnn_model(nn.Module):
         self.book_year_weight = self.book_year_weight_linear(book_year_feature) # shape = (batch_size, 1)
 
         # Concatenate
-        self.all = torch.cat((self.user_group_book_author, self.user_group_book_publisher, self.user_group_book_year,\
-                              self.book_author_book_publisher, self.book_author_book_year, self.book_publisher_book_year), dim=-1) 
+        self.all = torch.cat((self.user_group_embedding, self.book_author_embedding, self.book_publisher_embedding, self.book_year_embedding,\
+                              self.user_group_weight, self.book_author_weight, self.book_publisher_weight, self.book_year_weight), dim=-1) 
 
         # Decoder
         X = self.decoder(self.all)
@@ -187,7 +188,7 @@ class gmf_neucf_model(nn.Module):
 class ipnn_model(nn.Module):
     def __init__(self, num_user_group, num_book_author, num_book_publisher, num_book_year, num_features, methods):
         super(ipnn_model, self).__init__()
-        num_decoder = num_features*3+3
+        num_decoder = num_features*6+4
         self.methods = methods
         self.user_group = nn.Linear(num_user_group, num_features)
         self.book_author = nn.Linear(num_book_author, num_features)
@@ -218,16 +219,17 @@ class ipnn_model(nn.Module):
         self.book_year_weight = self.book_year_weight_linear(book_year_feature) # shape = (batch_size, 1)
 
         # Inner product
-        self.user_group_book_author = self.user_group * self.book_author
-        self.user_group_book_publisher = self.user_group * self.book_publisher
-        self.user_group_book_year = self.user_group * self.book_year
-        self.book_author_book_publisher = self.book_author * self.book_publisher
-        self.book_author_book_year = self.book_author * self.book_year
-        self.book_publisher_book_year = self.book_publisher * self.book_year
+        self.user_group_book_author = self.user_group_embedding * self.book_author_embedding
+        self.user_group_book_publisher = self.user_group_embedding * self.book_publisher_embedding
+        self.user_group_book_year = self.user_group_embedding * self.book_year_embedding
+        self.book_author_book_publisher = self.book_author_embedding * self.book_publisher_embedding
+        self.book_author_book_year = self.book_author_embedding * self.book_year_embedding
+        self.book_publisher_book_year = self.book_publisher_embedding * self.book_year_embedding
 
         # Concatenate
         self.all = torch.cat((self.user_group_book_author, self.user_group_book_publisher, self.user_group_book_year,\
-                              self.book_author_book_publisher, self.book_author_book_year, self.book_publisher_book_year), dim=-1) 
+                              self.book_author_book_publisher, self.book_author_book_year, self.book_publisher_book_year,\
+                              self.user_group_weight, self.book_author_weight, self.book_publisher_weight, self.book_year_weight), dim=-1) 
 
         # Decoder
         X = self.decoder(self.all)
@@ -385,7 +387,7 @@ class opnn_model(nn.Module):
 class pin_model(nn.Module):
     def __init__(self, num_user_group, num_book_author, num_book_publisher, num_book_year, num_features, methods):
         super(pin_model, self).__init__()
-        num_decoder = 3 * num_features
+        num_decoder = 6 * num_features
         self.methods = methods
         self.user_group = nn.Linear(num_user_group, num_features)
         self.book_author = nn.Linear(num_book_author, num_features)
@@ -416,12 +418,12 @@ class pin_model(nn.Module):
         self.book_year_weight = self.book_year_weight_linear(book_year_feature) # shape = (batch_size, 1)
 
         # Inner product
-        self.user_group_book_author = self.user_group * self.book_author
-        self.user_group_book_publisher = self.user_group * self.book_publisher
-        self.user_group_book_year = self.user_group * self.book_year
-        self.book_author_book_publisher = self.book_author * self.book_publisher
-        self.book_author_book_year = self.book_author * self.book_year
-        self.book_publisher_book_year = self.book_publisher * self.book_year
+        self.user_group_book_author = self.user_group_embedding * self.book_author_embedding
+        self.user_group_book_publisher = self.user_group_embedding * self.book_publisher_embedding
+        self.user_group_book_year = self.user_group_embedding * self.book_year_embedding
+        self.book_author_book_publisher = self.book_author_embedding * self.book_publisher_embedding
+        self.book_author_book_year = self.book_author_embedding * self.book_year_embedding
+        self.book_publisher_book_year = self.book_publisher_embedding * self.book_year_embedding
 
         # Concatenate   
         self.all = F.tanh(torch.cat((self.user_group_book_author,
@@ -477,13 +479,13 @@ class wide_deep_model(nn.Module):
         self.book_year_weight = self.book_year_weight_linear(book_year_feature) # shape = (batch_size, 1)
 
         ## Deep part
-        # Inner product
-        self.user_group_book_author = self.user_group * self.book_author
-        self.user_group_book_publisher = self.user_group * self.book_publisher
-        self.user_group_book_year = self.user_group * self.book_year
-        self.book_author_book_publisher = self.book_author * self.book_publisher
-        self.book_author_book_year = self.book_author * self.book_year
-        self.book_publisher_book_year = self.book_publisher * self.book_year
+         # Inner product
+        self.user_group_book_author = self.user_group_embedding * self.book_author_embedding
+        self.user_group_book_publisher = self.user_group_embedding * self.book_publisher_embedding
+        self.user_group_book_year = self.user_group_embedding * self.book_year_embedding
+        self.book_author_book_publisher = self.book_author_embedding * self.book_publisher_embedding
+        self.book_author_book_year = self.book_author_embedding * self.book_year_embedding
+        self.book_publisher_book_year = self.book_publisher_embedding * self.book_year_embedding
 
         # Concatenate
         self.deep_part_all = torch.cat((self.user_group_book_author, self.user_group_book_publisher,
